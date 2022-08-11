@@ -1,9 +1,31 @@
 use super::*;
 
 #[derive(Debug, PartialEq)]
+pub struct ErrorContext {
+  pub(crate) line: u16,
+  pub(crate) column: u16,
+  pub(crate) path: Box<Path>,
+}
+
+#[derive(Debug, PartialEq)]
 pub(crate) struct CompileError<'src> {
   pub(crate) token: Token<'src>,
+  pub(crate) context: ErrorContext,
   pub(crate) kind: CompileErrorKind<'src>,
+}
+
+impl Display for ErrorContext {
+  fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+    write!(
+      f,
+      "--> {}:{}:{}",
+      self.path.to_str().unwrap(),
+      self.line,
+      self.column
+    );
+
+    Ok(())
+  }
 }
 
 impl<'src> CompileError<'src> {
@@ -269,6 +291,8 @@ impl Display for CompileError<'_> {
         write!(f, "Unterminated string")?;
       }
     }
+
+    write!(f, "{}", self.context);
 
     Ok(())
   }
