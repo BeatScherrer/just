@@ -30,6 +30,7 @@ fn non_leading_byte_order_mark_produces_error() {
         |
       3 | \u{feff}
         | ^
+        --> path_to_justfile/justfile:3:1
       ")
     .status(EXIT_FAILURE)
     .run();
@@ -37,16 +38,21 @@ fn non_leading_byte_order_mark_produces_error() {
 
 #[test]
 fn dont_mention_byte_order_mark_in_errors() {
-  Test::new()
+  let test = Test::new();
+  let path = test.justfile_path();
+
+  test
     .justfile("{")
-    .stderr(
+    .stderr(format!(
       "
-      error: Expected '@', comment, end of file, end of line, or identifier, but found '{'
+      error: Expected '@', comment, end of file, end of line, or identifier, but found '{{'
         |
-      1 | {
+      1 | {{
         | ^
+        --> {}/justfile:1:1
       ",
-    )
+      path.to_str().unwrap()
+    ))
     .status(EXIT_FAILURE)
     .run();
 }

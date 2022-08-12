@@ -1,3 +1,5 @@
+use crate::compile_error::ErrorContext;
+
 use super::*;
 
 use CompileErrorKind::*;
@@ -214,6 +216,11 @@ impl<'src> Lexer<'src> {
         message: message.into(),
       },
       token,
+      context: Some(ErrorContext {
+        line: token.line,
+        column: token.column,
+        path: String::from("test path"),
+      }),
     }
   }
 
@@ -245,13 +252,24 @@ impl<'src> Lexer<'src> {
       length,
     };
 
-    CompileError { token, kind }
+    let error_context = ErrorContext {
+      line: token.line,
+      column: token.column,
+      path: String::from("test_path"),
+    };
+
+    CompileError {
+      token,
+      kind,
+      context: Some(error_context),
+    }
   }
 
   fn unterminated_interpolation_error(interpolation_start: Token<'src>) -> CompileError<'src> {
     CompileError {
       token: interpolation_start,
       kind: UnterminatedInterpolation,
+      context: None,
     }
   }
 
@@ -994,6 +1012,11 @@ mod tests {
             length,
           },
           kind,
+          context: Some(ErrorContext {
+            line,
+            column,
+            path: String::from("some/test/path"),
+          }),
         };
         assert_eq!(have, want);
       }
@@ -2289,6 +2312,7 @@ mod tests {
         kind:  Internal {
           ref message,
         },
+        context: None
       } if message == "Lexer presumed character `-`"
     );
 

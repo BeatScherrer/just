@@ -1,3 +1,5 @@
+use crate::compile_error::ErrorContext;
+
 use super::*;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -16,7 +18,15 @@ impl<'src> Token<'src> {
   }
 
   pub(crate) fn error(&self, kind: CompileErrorKind<'src>) -> CompileError<'src> {
-    CompileError { token: *self, kind }
+    CompileError {
+      token: *self,
+      kind,
+      context: Some(ErrorContext {
+        line: self.line,
+        column: self.column,
+        path: String::from("some/test/path"),
+      }),
+    }
   }
 }
 

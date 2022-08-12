@@ -1,6 +1,6 @@
 use super::*;
 
-use crate::compiler::Compiler;
+use crate::{compile_error::ErrorContext, compiler::Compiler};
 use pretty_assertions::assert_eq;
 
 pub(crate) fn compile(text: &str) -> Justfile {
@@ -80,6 +80,7 @@ pub(crate) fn analysis_error(
           length,
         },
         kind,
+        context: None,
       };
       assert_eq!(have, want);
     }

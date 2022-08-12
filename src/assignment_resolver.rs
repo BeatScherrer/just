@@ -1,3 +1,5 @@
+use crate::compile_error::ErrorContext;
+
 use super::*;
 
 use CompileErrorKind::*;
@@ -45,9 +47,15 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
         length: 0,
         kind: TokenKind::Unspecified,
       };
+      // TODO how to we get the path at this point?
       return Err(CompileError {
         kind: Internal { message },
         token,
+        context: Some(ErrorContext {
+          line: token.line,
+          column: token.column,
+          path: String::from("test_path"),
+        }),
       });
     }
 

@@ -1,28 +1,23 @@
 use super::*;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct ErrorContext {
-  pub(crate) line: u16,
-  pub(crate) column: u16,
-  pub(crate) path: Box<Path>,
+  pub(crate) line: usize,
+  pub(crate) column: usize,
+  // TODO: add proper path type
+  pub(crate) path: String,
 }
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct CompileError<'src> {
   pub(crate) token: Token<'src>,
-  pub(crate) context: ErrorContext,
+  pub(crate) context: Option<ErrorContext>,
   pub(crate) kind: CompileErrorKind<'src>,
 }
 
 impl Display for ErrorContext {
   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-    write!(
-      f,
-      "--> {}:{}:{}",
-      self.path.to_str().unwrap(),
-      self.line,
-      self.column
-    );
+    write!(f, "--> {}:{}:{}", self.path, self.line, self.column).unwrap();
 
     Ok(())
   }
@@ -292,7 +287,12 @@ impl Display for CompileError<'_> {
       }
     }
 
-    write!(f, "{}", self.context);
+    match &self.context {
+      Some(error_context) => {
+        write!(f, "{}", error_context).unwrap();
+      }
+      _ => todo!(),
+    }
 
     Ok(())
   }

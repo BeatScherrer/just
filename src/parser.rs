@@ -1,3 +1,5 @@
+use crate::compile_error::ErrorContext;
+
 use super::*;
 
 use TokenKind::*;
@@ -394,9 +396,15 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   /// Parse an expression, e.g. `1 + 2`
   fn parse_expression(&mut self) -> CompileResult<'src, Expression<'src>> {
     if self.depth == if cfg!(windows) { 48 } else { 256 } {
+      let token = self.next()?;
       return Err(CompileError {
-        token: self.next()?,
+        token,
         kind: CompileErrorKind::ParsingRecursionDepthExceeded,
+        context: Some(ErrorContext {
+          line: token.line,
+          column: token.column,
+          path: String::from("some/test/path"),
+        }),
       });
     }
 
@@ -899,6 +907,11 @@ mod tests {
             length,
           },
           kind,
+          context: Some(ErrorContext {
+            line,
+            column,
+            path: String::from("some/test/path"),
+          }),
         };
         assert_eq!(have, want);
       }
