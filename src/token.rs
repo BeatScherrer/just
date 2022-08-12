@@ -24,7 +24,8 @@ impl<'src> Token<'src> {
       context: Some(ErrorContext {
         line: self.line,
         column: self.column,
-        path: String::from("some/test/path"),
+
+        path: todo!("how do we get the file path here?"),
       }),
     }
   }
