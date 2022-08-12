@@ -1,22 +1,6 @@
 use super::*;
 
 #[derive(Debug)]
-pub(crate) struct ErrorDescription<'src> {
-  error: Error<'src>,
-  filename: String,
-  line: u32,
-  column: u32,
-}
-
-impl<'src> ColorDisplay for ErrorDescription<'src> {
-  fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
-    writeln!(f, "{:?}", self.error)?;
-    writeln!(f, "--> {}:{}:{}", self.filename, self.line, self.column)?;
-    Ok(())
-  }
-}
-
-#[derive(Debug)]
 pub(crate) enum Error<'src> {
   ArgumentCountMismatch {
     recipe: &'src str,
@@ -654,12 +638,7 @@ impl<'src> ColorDisplay for Error<'src> {
 
     if let Some(token) = self.context() {
       writeln!(f)?;
-      writeln!(f, "{}", token.color_display(color.error()))?;
-      writeln!(
-        f,
-        "--> {}:{}:{}",
-        "/some/long/path/to/the/justfile", token.line, token.column
-      )?;
+      write!(f, "{}", token.color_display(color.error()))?;
     }
 
     Ok(())
